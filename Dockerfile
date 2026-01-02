@@ -1,80 +1,62 @@
-# ===== STAGE 1: Dependencies =====
-FROM node:20-alpine AS deps
-WORKDIR /app
-
-# Installer les outils système nécessaires
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    git \
-    curl
-
-# Copier les fichiers de dépendances
-COPY package*.json ./
-
-# Installer avec npm (pas yarn, pour éviter les conflits)
-RUN npm ci --only=production && \
-    npm cache clean --force
-
-# ===== STAGE 2: Build =====
+# ============================================
+# Stage 1: Builder (Installation + Build)
+# ============================================
 FROM node:20-alpine AS builder
+
+# Variables d'environnement pour le build
+ARG DATABASE_URL
+ARG REDIS_URL
+ARG WORKER_MODE=server
+ARG PORT=9000
+
+ENV DATABASE_URL=${DATABASE_URL}
+ENV REDIS_URL=${REDIS_URL}
+ENV WORKER_MODE=${WORKER_MODE}
+ENV PORT=${PORT}
+ENV NODE_ENV=production
+
 WORKDIR /app
 
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    git
+# Copie les fichiers de dépendances
+COPY package.json yarn.lock ./
 
-# Copier node_modules depuis deps
-COPY --from=deps /app/node_modules ./node_modules
+# Installation des dépendances (avec cache optimisé)
+RUN yarn install --frozen-lockfile --production=false
 
-# Copier tout le code source
+# Copie tout le code source
 COPY . .
 
-# Build Medusa (compile TypeScript + Admin)
-RUN npm run build
+# Build du projet (compilation TypeScript + Admin Dashboard)
+RUN yarn build
 
-# ===== STAGE 3: Production =====
+# ============================================
+# Stage 2: Runner (Production)
+# ============================================
 FROM node:20-alpine AS runner
+
+# Variables d'environnement pour le runtime
+ENV NODE_ENV=production
+ENV PORT=9000
+
 WORKDIR /app
 
-# Installer curl pour healthcheck
-RUN apk add --no-cache curl
+# Copie les fichiers nécessaires depuis le builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/yarn.lock ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/medusa-config.ts ./
+COPY --from=builder /app/migrations.sh ./
 
-# Créer un utilisateur non-root
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+# Rend le script de migrations exécutable
+RUN chmod +x ./migrations.sh
 
-# Copier les fichiers buildés
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/medusa-config.js ./medusa-config.js
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-
-# Variables d'environnement
-ENV NODE_ENV=production \
-    PORT=9000
-
+# Expose le port
 EXPOSE 9000
 
 # Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD curl -f http://localhost:9000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=10 \
+  CMD node -e "require('http').get('http://localhost:9000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
-# Passer à l'utilisateur non-root
-USER nodejs
-
-# Démarrage avec migrations
-CMD ["sh", "-c", "\
-    echo '🔍 Waiting for database...' && \
-    sleep 5 && \
-    echo '🚀 Running migrations...' && \
-    npx medusa migrations run && \
-    echo \"🎯 Starting Medusa in ${WORKER_MODE:-server} mode\" && \
-    if [ \"$WORKER_MODE\" = 'worker' ]; then \
-        npx medusa start --worker; \
-    else \
-        npx medusa start; \
-    fi"]
+# Commande de démarrage
+CMD ["sh", "-c", "./migrations.sh && yarn start"]
