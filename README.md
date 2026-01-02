@@ -1,134 +1,62 @@
-# medusa-coolify
+<p align="center">
+  <a href="https://www.medusajs.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
+    <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
+    </picture>
+  </a>
+</p>
+<h1 align="center">
+  Medusa
+</h1>
 
-> Integration module for deploying Medusa.js projects seamlessly using [Coolify](https://coolify.io).
+<h4 align="center">
+  <a href="https://docs.medusajs.com">Documentation</a> |
+  <a href="https://www.medusajs.com">Website</a>
+</h4>
 
-![image](https://github.com/user-attachments/assets/15c9cafe-ea75-4356-9917-960176b11e1d)
+<p align="center">
+  Building blocks for digital commerce
+</p>
+<p align="center">
+  <a href="https://github.com/medusajs/medusa/blob/master/CONTRIBUTING.md">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs welcome!" />
+  </a>
+    <a href="https://www.producthunt.com/posts/medusa"><img src="https://img.shields.io/badge/Product%20Hunt-%231%20Product%20of%20the%20Day-%23DA552E" alt="Product Hunt"></a>
+  <a href="https://discord.gg/xpCwq3Kfn8">
+    <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
+  </a>
+  <a href="https://twitter.com/intent/follow?screen_name=medusajs">
+    <img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@medusajs" alt="Follow @medusajs" />
+  </a>
+</p>
 
+## Compatibility
 
+This starter is compatible with versions >= 2 of `@medusajs/medusa`. 
 
-## 🚀 Create PostgreSQL Database
+## Getting Started
 
-Follow these steps to set up your PostgreSQL database:
+Visit the [Quickstart Guide](https://docs.medusajs.com/learn/installation) to set up a server.
 
-1. **Create a PostgreSQL 16 database**  
-   Use the default settings unless your project requires custom configuration.
+Visit the [Docs](https://docs.medusajs.com/learn/installation#get-started) to learn more about our system requirements.
 
-2. **Enable SSL**  
-   Ensure SSL is enabled for secure database connections. (required on medusa in production mode) 
-![image](https://github.com/user-attachments/assets/6841025e-58d4-4f4e-a3f3-d6ac37402770)
+## What is Medusa
 
-## ⚡ Create Redis Database
+Medusa is a set of commerce modules and tools that allow you to build rich, reliable, and performant commerce applications without reinventing core commerce logic. The modules can be customized and used to build advanced ecommerce stores, marketplaces, or any product that needs foundational commerce primitives. All modules are open-source and freely available on npm.
 
-No special configuration is required — simply create a Redis instance and you're good to go!
-![image](https://github.com/user-attachments/assets/c06b2c5c-b0ab-43fe-a88a-cd91ef38f7dc)
+Learn more about [Medusa’s architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
 
-## 🧩 Create `medusa-server`
+## Community & Contributions
 
-Set up the Medusa backend service with the following steps:
+The community and core team are available in [GitHub Discussions](https://github.com/medusajs/medusa/discussions), where you can ask for support, discuss roadmap, and share ideas.
 
-### 1. Configure Service
+Join our [Discord server](https://discord.com/invite/medusajs) to meet other community members.
 
-Use the Coolify UI to create a new service named **`medusa-server`**.  
+## Other channels
 
-Refer to the screenshots below for guidance:
-
-![Step 1](https://github.com/user-attachments/assets/0cd80df3-eee9-4453-9859-b8ee8167ebee)  
-![Step 2](https://github.com/user-attachments/assets/0bd527f4-b3bf-4942-bf5d-a77c02ed3ad3)
-
----
-
-### 2. Add Environment Variables
-
-Use the Coolify environment UI to set the following variables:
-
-```env
-# Secrets (generate securely, e.g. `openssl rand -hex 32`)
-COOKIE_SECRET=supersecret
-JWT_SECRET=supersecret2
-
-# CORS settings
-STORE_CORS=https://front.site.com
-ADMIN_CORS=https://admin.site.com
-AUTH_CORS=https://admin.site.com,https://front.site.com
-
-# Backend configuration
-BACKEND_URL=https://admin.site.com
-DISABLE_ADMIN=false
-WORKER_MODE=server
-PORT=9000
-
-# Database connections
-DATABASE_URL=postgres://user:password@host:port/database
-REDIS_URL=redis://user:password@host:port/database
-```
-
-> ⚠️ **Important:**  
-> Make sure to set **"Build Variable?"** to `true` for at least `DATABASE_URL`, `WORKER_MODE` and `REDIS_URL`.
-
----
-
-📘 **For more information**  
-To better understand how the Medusa server and worker setup works, visit the official documentation:  
-🔗 [https://docs.medusajs.com/learn/deployment](https://docs.medusajs.com/learn/deployment)
-
-
-## 🧩 Create `medusa-worker`
-
-![image](https://github.com/user-attachments/assets/0cd80df3-eee9-4453-9859-b8ee8167ebee)
-
-![image](https://github.com/user-attachments/assets/0bd527f4-b3bf-4942-bf5d-a77c02ed3ad3)
-
-```env
-# Secrets (generate securely, e.g. `openssl rand -hex 32`)
-COOKIE_SECRET=supersecret
-JWT_SECRET=supersecret2
-
-# CORS settings
-STORE_CORS=https://front.site.com
-ADMIN_CORS=https://admin.site.com
-AUTH_CORS=https://admin.site.com,https://front.site.com
-
-# Backend configuration
-BACKEND_URL=https://admin.site.com
-DISABLE_ADMIN=true
-WORKER_MODE=worker
-PORT=9000
-
-# Database connections
-DATABASE_URL=postgres://user:password@host:port/database
-REDIS_URL=redis://user:password@host:port/database
-```
-
-> ⚠️ **Important:**  
-> Make sure to set **"Build Variable?"** to `true` for at least `DATABASE_URL`, `WORKER_MODE` and `REDIS_URL`.
-
-
-## 💡 Advice, Tips, Plans & More
-
-Here are a few things to keep in mind when working with this setup:
-
-- 🛠️ **Using the Medusa CLI**  
-  To run Medusa CLI commands inside the `medusa-server`, open the Terminal tab and run:  
-  ```bash
-  node_modules/.bin/medusa <command>
-  ```
-
-- 📦 **Database Migrations**  
-  Only the `medusa-server` is responsible for running database migrations.
-
-- 📁 **S3/File Storage Not Configured**  
-  This setup does **not** include S3 or file storage integration by default.  
-  If needed, you'll need to configure it yourself — fortunately, it’s quite simple!
-
-- 🧪 **Development Workflow (Optional)**  
-  For local development, you can use the provided `docker-compose.yaml` and fill `/medusa/.env`.  
-  Start the services and run:
-  ```bash
-  yarn run dev
-  ```
-  > 💬 _Not sure if this is the optimal dev workflow — feel free to share your thoughts!_
-
----
-
-🎉 That's all for now — until next time!
-
+- [GitHub Issues](https://github.com/medusajs/medusa/issues)
+- [Twitter](https://twitter.com/medusajs)
+- [LinkedIn](https://www.linkedin.com/company/medusajs)
+- [Medusa Blog](https://medusajs.com/blog/)
